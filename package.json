@@ -1,0 +1,61 @@
+{
+  "name": "promiseify-ish",
+  "version": "1.0.0",
+  "description": "Adds promise style notation to Firebase style functions",
+  "homepage": "https://github.com/hal313/promisifyish",
+  "bugs": {
+    "url": "https://github.com/hal313/promisifyish/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hal313/promisifyish.git"
+  },
+  "scripts": {
+    "test": "jest"
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "auto-changelog": "^1.13.0",
+    "babel-jest": "^24.7.1",
+    "babel-preset-env": "^1.7.0",
+    "jest": "^24.7.1"
+  },
+  "auto-changelog": {
+    "unreleased": false,
+    "commitLimit": false
+  },
+  "babel": {
+    "presets": [
+      "env"
+    ]
+  },
+  "jest": {
+    "collectCoverage": true,
+    "coverageDirectory": "build/reports",
+    "coverageThreshold": {
+      "global": {
+        "branches": 60,
+        "functions": 90,
+        "lines": 80,
+        "statements": 80
+      }
+    },
+    "collectCoverageFrom": [
+      "src/**/*.js",
+      "dist/**/*.js",
+      "!**/node_modules/**",
+      "!**/test/**"
+    ],
+    "transform": {
+      ".*": "<rootDir>/node_modules/babel-jest"
+    },
+    "roots": [
+      "src",
+      "test"
+    ],
+    "testRegex": [
+      "test/.*-spec.js"
+    ]
+  }
+}

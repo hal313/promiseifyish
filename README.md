@@ -1,10 +1,10 @@
-# [promiseify-ish](https://github.com/hal313/promiseifyish)
+# [promiseifyish](https://github.com/hal313/promisifyish)
 
 > Wraps functions and objects into promises.
 
-[![Build Status](http://img.shields.io/travis/hal313/promiseifyish/master.svg?style=flat-square)](https://travis-ci.org/hal313/promiseifyish)
-[![NPM version](http://img.shields.io/npm/v/promiseifyish.svg?style=flat-square)](https://www.npmjs.com/package/promiseifyish)
-[![Dependency Status](http://img.shields.io/david/hal313/promiseifyish.svg?style=flat-square)](https://david-dm.org/hal313/promiseifyish)
+[![Build Status](http://img.shields.io/travis/hal313/promisifyish/master.svg?style=flat-square)](https://travis-ci.org/hal313/promisifyish)
+[![NPM version](http://img.shields.io/npm/v/promisifyish.svg?style=flat-square)](https://www.npmjs.com/package/promisifyish)
+[![Dependency Status](http://img.shields.io/david/hal313/promisifyish.svg?style=flat-square)](https://david-dm.org/hal313/promisifyish)
 
 ## Introduction
 Wraps functions of the form fn([...args], successCallback, failureCallback) into Promises.
@@ -27,7 +27,6 @@ This is a basic script which can be used to build and deploy (to NPM) the projec
 ```
 export VERSION=...
 git checkout -b release/$VERSION
-npm run dist
 npm run test
 npm version --no-git-tag-version patch
 git add package*

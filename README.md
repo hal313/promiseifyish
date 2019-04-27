@@ -34,13 +34,11 @@ git commit -m 'Version bump'
 npx auto-changelog -p
 git add CHANGELOG.md
 git commit -m 'Updated changelog'
-git add dist/
-git commit -m 'Generated artifacts'
 git checkout master
 git merge --no-ff release/$VERSION
 git tag -a -m 'Tagged for release' $VERSION
 git branch -d release/$VERSION
 git checkout develop
-git merge --no-ff master
+git merge master
 git push --all && git push --tags
 ```

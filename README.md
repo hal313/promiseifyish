@@ -1,9 +1,9 @@
-# [promiseify-ish](https://github.com/hal313/promisifyish)
+# [promiseifyish](https://github.com/hal313/promisifyish)
 
 > Wraps functions and objects into promises.
 
 [![Build Status](http://img.shields.io/travis/hal313/promisifyish/master.svg?style=flat-square)](https://travis-ci.org/hal313/promisifyish)
-[![NPM version](http://img.shields.io/npm/v/promiseify-ish.svg?style=flat-square)](https://www.npmjs.com/package/promiseify-ish)
+[![NPM version](http://img.shields.io/npm/v/promisifyish.svg?style=flat-square)](https://www.npmjs.com/package/promisifyish)
 [![Dependency Status](http://img.shields.io/david/hal313/promisifyish.svg?style=flat-square)](https://david-dm.org/hal313/promisifyish)
 
 ## Introduction
@@ -27,7 +27,6 @@ This is a basic script which can be used to build and deploy (to NPM) the projec
 ```
 export VERSION=...
 git checkout -b release/$VERSION
-npm run dist
 npm run test
 npm version --no-git-tag-version patch
 git add package*

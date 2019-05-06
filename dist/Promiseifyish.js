@@ -143,14 +143,9 @@ function Promiseify(fn) {
           var executitionArgs = Array.from(arguments);
           execute(failureHandler, executitionArgs);
           reject(executitionArgs);
-        }); // Execute the function
+        }); // Execute the function (throwing will reject the promise with the error)
 
-        try {
-          fn.apply({}, executionArguments);
-        } catch (error) {
-          // The execution failed; reject the promise
-          reject(error);
-        }
+        fn.apply({}, executionArguments);
       });
     };
   } else if (isObject(fn)) {

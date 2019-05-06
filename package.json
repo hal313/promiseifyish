@@ -1,25 +1,35 @@
 {
-  "name": "promisifyish",
+  "name": "promiseifyish",
   "version": "1.0.1",
   "description": "Adds promise style notation to Firebase style functions",
-  "homepage": "https://github.com/hal313/promisifyish",
+  "homepage": "https://github.com/hal313/promiseifyish",
+  "main": "dist/Promiseifyish.js",
   "bugs": {
-    "url": "https://github.com/hal313/promisifyish/issues"
+    "url": "https://github.com/hal313/promiseifyish/issues"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/hal313/promisifyish.git"
+    "url": "https://github.com/hal313/promiseifyish.git"
   },
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "clean": "rm -rf dist",
+    "build": "npm run clean && babel src -d dist",
+    "dist": "npm run build && uglifyjs --compress --mangle --source-map -o dist/Promiseifyish.min.js dist/Promiseifyish.js",
+    "watch:build": "npm-watch build",
+    "watch:dist": "npm-watch dist"
   },
-  "author": "",
+  "author": "John R. Ghidiu",
   "license": "MIT",
   "devDependencies": {
     "auto-changelog": "^1.13.0",
-    "babel-jest": "^24.7.1",
-    "babel-preset-env": "^1.7.0",
-    "jest": "^24.7.1"
+    "@babel/cli": "^7.4.4",
+    "@babel/core": "^7.4.4",
+    "@babel/preset-env": "^7.4.4",
+    "jest": "^24.7.1",
+    "npm-watch": "^0.6.0",
+    "uglify-js": "^3.5.10"
   },
   "auto-changelog": {
     "unreleased": false,
@@ -27,7 +37,7 @@
   },
   "babel": {
     "presets": [
-      "env"
+      "@babel/preset-env"
     ]
   },
   "jest": {
@@ -43,19 +53,27 @@
     },
     "collectCoverageFrom": [
       "src/**/*.js",
-      "dist/**/*.js",
-      "!**/node_modules/**",
-      "!**/test/**"
+      "dist/**/*.js"
     ],
-    "transform": {
-      ".*": "<rootDir>/node_modules/babel-jest"
-    },
     "roots": [
       "src",
+      "dist",
       "test"
     ],
     "testRegex": [
       "test/.*-spec.js"
     ]
+  },
+  "watch": {
+    "build": {
+      "patterns": [
+        "src"
+      ]
+    },
+    "dist": {
+      "patterns": [
+        "src"
+      ]
+    }
   }
 }

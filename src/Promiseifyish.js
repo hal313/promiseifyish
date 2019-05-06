@@ -134,13 +134,8 @@ export function Promiseify(fn) {
                     reject(executitionArgs);
                 });
 
-                // Execute the function
-                try {
-                    fn.apply({}, executionArguments);
-                } catch (error) {
-                    // The execution failed; reject the promise
-                    reject(error);
-                }
+                // Execute the function (throwing will reject the promise with the error)
+                fn.apply({}, executionArguments);
             });
         }
     } else if (isObject(fn)) {

@@ -1,5 +1,5 @@
 // Import the Promiseifish script
-import { Promiseify } from '../../../src/Promiseifyish.js';
+import { Promiseify } from '../../scripts/src/Promiseifyish.js';
 
 let $standardResultElement = $('#result-standard'),
     $promisifiedResultElement = $('#result-promiseified');

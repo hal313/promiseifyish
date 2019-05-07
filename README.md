@@ -58,8 +58,8 @@ function someFunction(success, value, successCallback, failureCallback) {
 
 // Standard usage:
 someFunction(true, 'some value',
-    value => console.log('succes', value),
-    error => console.log('failure', error)
+    value => console.log('standard', 'succes', value),
+    error => console.log('standard', 'failure', error)
 );
 
 
@@ -67,8 +67,8 @@ someFunction(true, 'some value',
 var promisifiedFunction = Promiseifyish.Promiseify(someFunction);
 // Invoke as a promise
 promisifiedFunction(true, 'some value')
-    .then(value => console.log('success', value))
-    .catch(error => console.log('failure', error));
+    .then(value => console.log('promiseified', 'success', value))
+    .catch(error => console.log('promiseified', 'failure', error));
 ```
 
 ### As an Object

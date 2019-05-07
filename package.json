@@ -11,6 +11,11 @@
     "type": "git",
     "url": "https://github.com/hal313/promiseifyish.git"
   },
+  "keywords": [
+    "promise",
+    "callback",
+    "javascript"
+  ],
   "publishConfig": {
     "access": "public"
   },
@@ -21,15 +26,17 @@
     "build": "npm run clean && babel src -d dist",
     "dist": "npm run build && uglifyjs --compress --mangle --source-map -o dist/Promiseifyish.min.js dist/Promiseifyish.js",
     "watch:build": "npm-watch build",
-    "watch:dist": "npm-watch dist"
+    "watch:dist": "npm-watch dist",
+    "release": "ext/scripts/release.sh --skip-push"
   },
   "author": "John R. Ghidiu",
   "license": "MIT",
   "devDependencies": {
-    "auto-changelog": "^1.13.0",
     "@babel/cli": "^7.4.4",
     "@babel/core": "^7.4.4",
+    "@babel/plugin-transform-modules-umd": "^7.2.0",
     "@babel/preset-env": "^7.4.4",
+    "auto-changelog": "^1.13.0",
     "jest": "^24.7.1",
     "npm-watch": "^0.6.0",
     "uglify-js": "^3.5.10"
@@ -39,6 +46,9 @@
     "commitLimit": false
   },
   "babel": {
+    "plugins": [
+      "@babel/plugin-transform-modules-umd"
+    ],
     "presets": [
       "@babel/preset-env"
     ]

@@ -1,0 +1,71 @@
+
+<!doctype html>
+<html lang="en">
+    <head>
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <!-- Set the viewport for mobile -->
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="//stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+        <!-- Custom CSS -->
+        <style>
+            .loader {
+                height: 20px;
+            }
+        </style>
+
+        <title>Promiseifyish ES5 Example</title>
+    </head>
+    <body>
+        <div class="jumbotron">
+            <h1 class="display-4">Promiseifyish ES5 Example</h1>
+            <p class="lead">Example ES5 use of the <a href="https://github.com/hal313/promiseifyish">Promiseifyish</a> library</p>
+        </div>
+
+        <div class="container">
+            <div>
+                <div>Load the Promiseifyish library using <code class="prettyprint">script</code> tags:</div>
+                <pre><code class="prettyprint">
+&lt;!-- // Load the Promiseifyish code --&gt;
+&lt;script src="../../../dist/Promiseifyish.js"&gt;&lt;/script&gt;
+&lt;!-- // Load the test code --&gt;
+&lt;script src="./es5-test.js" type="module"&gt;&lt;/script&gt;
+                </code></pre>
+            </div>
+
+            <div>
+                <table class="table">
+                        <thead>
+                            <tr>
+                                <th style="width: 50%;">Method</th>
+                                <th style="width: 50%;">Result</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Standard</td>
+                                <td><code id="result-standard" class="prettyprint"><img src="../../assets/dual-ring-loader.svg" class="loader"></code></td>
+                            </tr>
+                            <tr>
+                                <td>Promiseified</td>
+                                <td><code id="result-promiseified" class="prettyprint"><img src="../../assets/dual-ring-loader.svg" class="loader"></code></td>
+                            </tr>
+                        </tbody>
+                    </table>
+            </div>
+        </div>
+
+        <!-- // Load jQuery -->
+        <script src="//code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+        <!-- // Load some code to make the code samples pretty -->
+        <script src="//cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
+
+        <!-- // Load the Promiseifish code -->
+        <script src="../../../dist/Promiseifyish.js"></script>
+        <!-- // Load the test code -->
+        <script src="./es5-test.js" type="module"></script>
+    </body>
+</html>

@@ -3,7 +3,7 @@
 > Wraps functions and objects into promises.
 
 [![Build Status](http://img.shields.io/travis/hal313/promiseifyish/master.svg?style=flat-square)](https://travis-ci.org/hal313/promiseifyish)
-[![NPM version](http://img.shields.io/npm/v/promiseifyish.svg?style=flat-square)](https://www.npmjs.com/package/promiseifyish)
+[![NPM version](http://img.shields.io/npm/v/@hal313/promiseifyish.svg?style=flat-square)](https://www.npmjs.com/package/@hal313/promiseifyish)
 [![Dependency Status](http://img.shields.io/david/hal313/promiseifyish.svg?style=flat-square)](https://david-dm.org/hal313/promiseifyish)
 
 ## Introduction

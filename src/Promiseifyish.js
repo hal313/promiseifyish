@@ -1,5 +1,3 @@
-import {version} from '../package.json';
-
 /**
  * Gets the type of an object.
  *
@@ -151,6 +149,3 @@ export function Promiseify(fn) {
     }
 
 }
-
-// Assign the version
-export const VERSION = version;

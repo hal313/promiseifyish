@@ -169,14 +169,6 @@ export function run(Promiseifyish) {
 
     describe('Promiseifyish', () => {
 
-        describe('Version Check', () => {
-
-            it('should have the correct version', () => {
-                expect(Promiseifyish.VERSION).toEqual(require('../package.json').version);
-            });
-
-        });
-
         describe('Execution', () => {
 
             // Generate all success/fail and sync/async combinations

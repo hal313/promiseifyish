@@ -8,7 +8,7 @@
 
 ## Introduction
 
-Wraps functions of the form fn([...args], successCallback, failureCallback) into Promises. This can be useful in cases where functions with callbacks are being chained together. Using promises avoids some
+Wraps functions of the form `fn([...args], successCallback, failureCallback)` into Promises. This can be useful in cases where functions with callbacks are being chained together. Using promises avoids some
 flow issues and often simplifies the logic.
 
 For example:
@@ -21,8 +21,11 @@ someFunction1(() => {
         }, errorHandler);
     }, errorHandler;
 }, errorHandler);
+```
 
-// Becomes
+Becomes
+
+```javascript
 someFunction1()
     .then(someFunction2)
     .then(someFunction3)

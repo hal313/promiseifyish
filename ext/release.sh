@@ -62,10 +62,11 @@ fi
 ## Create a new branch
 git checkout -b release/${NEXT_VERSION}
 
-## Build, test and commit the dist
+## Build, test and commit the dist and site
 npm run dist
 npm test
-git add dist/
+npm run site
+git add dist/ docs/
 git commit --allow-empty -m 'Generated artifacts'
 
 ## Bump the patch version (and do not commit the changes)

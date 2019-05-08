@@ -1,6 +1,6 @@
 {
   "name": "@hal313/promiseifyish",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Adds promise style notation to Firebase style functions",
   "homepage": "https://github.com/hal313/promiseifyish",
   "main": "dist/Promiseifyish.js",

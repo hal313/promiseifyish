@@ -35,7 +35,7 @@ someFunction1()
 
 ## Usage
 
-Use `Promiseifyish` to promiseify a function or an object. Project environment dictates how the code is imported. ES6, ES5 and AMD/CommonJS are all supported.
+Use `Promiseifyish` to promiseify a function or an object. Project environment dictates how the code is imported. ES6, ES5 and AMD/CommonJS are all supported. Comprehensive documentation and examples may be found at the [GitHub pages](https://hal313.github.io/promiseifyish/).
 
 ### As a function
 

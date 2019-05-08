@@ -25,9 +25,11 @@
     "clean": "rm -rf dist",
     "build": "npm run clean && babel src -d dist",
     "dist": "npm run build && uglifyjs --compress --mangle --source-map -o dist/Promiseifyish.min.js dist/Promiseifyish.js",
+    "develop": "npm run dist && npm test",
     "site": "cp src/Promiseifyish.js docs/scripts/src && cp dist/* docs/scripts/dist",
     "watch:build": "npm-watch build",
     "watch:dist": "npm-watch dist",
+    "watch:develop": "npm-watch develop",
     "release": "ext/scripts/release.sh --skip-push"
   },
   "author": "John R. Ghidiu",
@@ -86,7 +88,14 @@
     },
     "dist": {
       "patterns": [
-        "src"
+        "src",
+        "test"
+      ]
+    },
+    "develop": {
+      "patterns": [
+        "src",
+        "test"
       ]
     }
   }

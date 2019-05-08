@@ -37,12 +37,49 @@ node docs/examples/nodejs/nodejs-test.js
                 </code></pre>
             </div>
 
-            <!-- The console video  -->
-            <img src="../../assets/nodejs-output.gif" class="img-fluid">
+            <p>
+                <!-- The console video  -->
+                <img src="../../assets/nodejs-output.gif" class="img-fluid">
+            </p>
+
+            <div>
+                <p>
+                    <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#js-code-container" aria-expanded="false" aria-controls="code-container">
+                        Show Code
+                    </button>
+                </p>
+                <div class="collapse" id="js-code-container">
+                    <div class="card card-body">
+                        <div id="js-code" class="lang-js"></div>
+                    </div>
+                </div>
+            </div>
 
         </div>
 
+        <!-- // Load jQuery -->
+        <script src="//code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+        <!-- // Load Bootstrap -->
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
         <!-- // Load some code to make the code samples pretty -->
         <script src="//cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
+
+        <script>
+            // Load and populate the code when the page loads
+            $(() => {
+                fetch('./nodejs-test.js')
+                    .then(function(response) {
+                        return response.text();
+                    })
+                    .then(function(code) {
+                        // Populate the code
+                        $('#js-code').html(`<pre><code class="prettyprint lang-js">${code}</code></pre>`);
+                        // Format the code
+                        PR.prettyPrint();
+                    });
+            });
+        </script>
+
     </body>
 </html>

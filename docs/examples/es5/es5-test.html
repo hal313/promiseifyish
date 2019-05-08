@@ -38,28 +38,44 @@
 
             <div>
                 <table class="table">
-                        <thead>
-                            <tr>
-                                <th style="width: 50%;">Method</th>
-                                <th style="width: 50%;">Result</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>Standard</td>
-                                <td><code id="result-standard" class="lang-js"><img src="../../assets/dual-ring-loader.svg" class="loader"></code></td>
-                            </tr>
-                            <tr>
-                                <td>Promiseified</td>
-                                <td><code id="result-promiseified" class="lang-js"><img src="../../assets/dual-ring-loader.svg" class="loader"></code></td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <thead>
+                        <tr>
+                            <th style="width: 50%;">Method</th>
+                            <th style="width: 50%;">Result</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Standard</td>
+                            <td><code id="result-standard" class="lang-js"><img src="../../assets/dual-ring-loader.svg" class="loader"></code></td>
+                        </tr>
+                        <tr>
+                            <td>Promiseified</td>
+                            <td><code id="result-promiseified" class="lang-js"><img src="../../assets/dual-ring-loader.svg" class="loader"></code></td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
+
+            <div>
+                <p>
+                    <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#js-code-container" aria-expanded="false" aria-controls="code-container">
+                        Show Code
+                    </button>
+                </p>
+                <div class="collapse" id="js-code-container">
+                    <div class="card card-body">
+                        <div id="js-code" class="lang-js"></div>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
         <!-- // Load jQuery -->
         <script src="//code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+        <!-- // Load Bootstrap -->
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
         <!-- // Load some code to make the code samples pretty -->
         <script src="//cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
 
@@ -67,5 +83,21 @@
         <script src="../../scripts/dist/Promiseifyish.js"></script>
         <!-- // Load the test code -->
         <script src="./es5-test.js" type="module"></script>
+
+        <script>
+            // Load and populate the code when the page loads
+            $(() => {
+                fetch('./es5-test.js')
+                    .then(function(response) {
+                        return response.text();
+                    })
+                    .then(function(code) {
+                        // Populate the code
+                        $('#js-code').html(`<pre><code class="prettyprint lang-js">${code}</code></pre>`);
+                        // Format the code
+                        PR.prettyPrint();
+                    });
+            });
+        </script>
     </body>
 </html>

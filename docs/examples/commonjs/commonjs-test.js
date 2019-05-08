@@ -25,7 +25,7 @@ function someFunction(success, value, successCallback, failureCallback) {
 
 // Standard usage:
 someFunction(true, 'some value',
-    value => $standardResultElement.html(`'${value}'`),
+    value => $standardResultElement.html(`'${value}'`) && $standardResultElement.addClass('prettyprint') && PR.prettyPrint(),
     error => console.error('standard', 'failure', error)
 );
 
@@ -35,5 +35,5 @@ promisifiedFunction = Promiseify(someFunction);
 // Invoke as a promise
 promisifiedFunction(true, 'some value')
     // 'value' is an array of all the parameters which the callback would normally have been executed with
-    .then(value => $promisifiedResultElement.html(`'${value[0]}'`))
+    .then(value => $promisifiedResultElement.html(`'${value[0]}'`) && $promisifiedResultElement.addClass('prettyprint') && PR.prettyPrint())
     .catch(error => console.error('promisified', 'failure', error));

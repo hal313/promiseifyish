@@ -26,6 +26,8 @@ function someFunction(success, value, successCallback, failureCallback) {
 someFunction(true, 'some value',
     function onSuccess(value) {
         $standardResultElement.html(`'${value}'`);
+        $standardResultElement.addClass('prettyprint');
+        PR.prettyPrint();
     },
     function onFailure(error) {
         console.error('standard', 'failure', error);
@@ -40,6 +42,8 @@ promisifiedFunction(true, 'some value')
     // 'value' is an array of all the parameters which the callback would normally have been executed with
     .then(function onSuccess(value) {
         $promisifiedResultElement.html(`'${value[0]}'`);
+        $promisifiedResultElement.addClass('prettyprint');
+        PR.prettyPrint();
     })
     .catch(function onFailure(error) {
         console.error('promisified', 'failure', error);

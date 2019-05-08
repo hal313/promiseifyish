@@ -13,9 +13,11 @@
 
         <style>
             .external-link-indicator {
-                /* margin-left: 2px; */
                 font-size: xx-small;
                 vertical-align: super;
+            }
+            .code-sample-container {
+                margin: 2em 1em;
             }
         </style>
 
@@ -35,5 +37,47 @@
                 <li><a href="examples/nodejs/nodejs-test.html" target="nodejs">NodeJS <i class="fas fa-external-link-alt external-link-indicator"></i></a> - A <a href="https://nodejs.org/en/" target="nodejs-site">NodeJS <i class="fas fa-external-link-alt external-link-indicator"></i></a> script, showing standalone use</li>
             </ul>
         </div>
+
+        <div class="card code-sample-container">
+            <div class="card-header">Sample JavaScript Code</div>
+            <div class="card-body">
+                <pre><code class="prettyprint lang-js">
+/**
+* A function to demonstrate callback behavior.
+*
+* @param {boolean} success if true, the success callback will be invoked
+* @param {*} value the value to pass to the callback
+* @param {Function} [successCallback] the success callback
+* @param {Function} [failureCallback] the failure callback
+*/
+function someFunction(success, value, successCallback, failureCallback) {
+    if (success && 'function' === typeof successCallback) {
+        successCallback(value);
+    } else if (!success && 'function' === typeof failureCallback) {
+        failureCallback(value);
+    }
+}
+
+// Standard usage:
+someFunction(true, 'some value',
+    value => console.log('standard', 'success', value),
+    error => console.error('standard', 'failure', error)
+);
+
+// After promisification:
+let promisifiedFunction = Promiseify(someFunction);
+// Invoke as a promise
+promisifiedFunction(true, 'some value')
+    // 'value' is an array of all the parameters which the callback would
+    // normally have been executed with
+    .then(value => console.log('standard', 'success', value))
+    .catch(error => console.error('promisified', 'failure', error));
+                </code></pre>
+            </div>
+        </div>
+
+        <!-- // Load some code to make the code samples pretty -->
+        <script src="//cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
+
     </body>
 </html>

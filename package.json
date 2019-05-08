@@ -88,8 +88,7 @@
     },
     "dist": {
       "patterns": [
-        "src",
-        "test"
+        "src"
       ]
     },
     "develop": {

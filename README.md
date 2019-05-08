@@ -104,7 +104,9 @@ promiseifiedObject.functionMember(true, 'some value')
     .catch(error => console.log('failure', error));
 ```
 
-## Setup
+## Developing
+
+### Setup
 
 ```bash
 npm install
@@ -116,4 +118,55 @@ To run tests against the source code and dist folder (including coverage):
 
 ```bash
 npm test
+```
+
+Runing tests continuously:
+
+```bash
+npm run test:watch
+```
+
+### Building
+
+A build produces the contents of the `dist` folder:
+
+* A UMD version of the library (`dist/Promiseifyish.js`)
+
+Building:
+
+```bash
+npm run build
+```
+
+Building continuously on source changes:
+
+```bash
+npm run watch:build
+```
+
+### Distribution
+
+A distribution adds to the build:
+
+* A minified UMD version of the library (`dist/Promiseifyish.min.js`)
+* A source map (`dist/Promiseifyish.min.js.map`)
+
+Building a distribution:
+
+```bash
+npm run dist
+```
+
+Building a distribution continuously on source changes:
+
+```bash
+npm run watch:dist
+```
+
+### End to End Development
+
+Running the build pipeline, including tests, continuously:
+
+```bash
+npm run watch:develop
 ```

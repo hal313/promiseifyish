@@ -73,8 +73,18 @@ export function getAllFunctionNames(target) {
 /**
  * Promiseifies a function or every function on a target. If the target is an object, all functions will be promiseified.
  *
+ * Options:
+ *  only: String[]
+ *  include: String[]
+ *  exclude: String[]
+ *
+ * If 'only' is specified, then exactly those functions will be promisieifed
+ * If 'include' is specified, then those functions will be promisified, unless explicitly overriden by 'exclude'
+ * If 'exclude' is specified, then those functions will NOT be promisified; ignored when 'only' is specified
+ * The default behavior is to promiseify all functions (except those defined on Object).
+ *
  * @param {Function|Object} target the function or object to promiseify
- * @param {Object} options the options for promiseification
+ * @param {Object} [options] the optional options for promiseification
  * @returns {Function|Object} the promiseified target
  */
 export function Promiseify(target, options) {

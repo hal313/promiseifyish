@@ -17,7 +17,7 @@ export function getType(o) {
  * @returns {boolean} true if candidate is a function; false otherwise
  */
 export function isFunction(candidate) {
-    return 'function' === getType(candidate);
+    return 'function' === getType(candidate) || candidate instanceof Function;
 };
 
 /**
@@ -44,9 +44,52 @@ export function execute(fn, args, context) {
     return null;
 }
 
-export function Promiseify(fn) {
+// Names of functions defined by Object
+const OBJECT_PROTOTYPE_FUNCTION_NAMES = Object.getOwnPropertyNames(Object.getPrototypeOf(new Object()));
 
-    if (isFunction(fn)) {
+/**
+ * Gets the names of all functions (other than functions defined on Object), defined and inherited.
+ *
+ * @param {Object} target the object to get all function names from, defined in inherited
+ * @returns {String[]} names of defined functions
+ */
+export function getAllFunctionNames(target) {
+    let functionNames = [];
+
+    if (!!target && isObject(target)) {
+        do {
+            Object.getOwnPropertyNames(target)
+                .filter(name => !!(target[name]))
+                .filter(name => isFunction(target[name]))
+                .filter(name => !OBJECT_PROTOTYPE_FUNCTION_NAMES.includes(name))
+                .filter(name => !functionNames.includes(name))
+                .forEach(name => functionNames.push(name));
+        } while (target = Object.getPrototypeOf(target));
+    }
+
+    return functionNames.sort()
+}
+
+/**
+ * Promiseifies a function or every function on a target. If the target is an object, all functions will be promiseified.
+ *
+ * Options:
+ *  only: String[]
+ *  include: String[]
+ *  exclude: String[]
+ *
+ * If 'only' is specified, then exactly those functions will be promisieifed
+ * If 'include' is specified, then those functions will be promisified, unless explicitly overriden by 'exclude'
+ * If 'exclude' is specified, then those functions will NOT be promisified; ignored when 'only' is specified
+ * The default behavior is to promiseify all functions (except those defined on Object).
+ *
+ * @param {Function|Object} target the function or object to promiseify
+ * @param {Object} [options] the optional options for promiseification
+ * @returns {Function|Object} the promiseified target
+ */
+export function Promiseify(target, options) {
+
+    if (isFunction(target)) {
         return function() {
             // if arguments.length = 0
             //  no success handler
@@ -133,19 +176,46 @@ export function Promiseify(fn) {
                 });
 
                 // Execute the function (throwing will reject the promise with the error)
-                fn.apply({}, executionArguments);
+                target.apply({}, executionArguments);
             });
         }
-    } else if (isObject(fn)) {
-        let promisifiedObject = Object.assign({}, fn);
-        Object.getOwnPropertyNames(promisifiedObject).forEach((name) => {
+    } else if (isObject(target)) {
+        let promisifiedObject = target;
+        let targetFunctions = getAllFunctionNames(target);
+
+        // Conditional promiseifying
+        let localOptions = options || {};
+
+        if (!!localOptions.only) {
+            targetFunctions = localOptions.only;
+        } else {
+            if (!!localOptions.include) {
+                // Start from a blank slate
+                targetFunctions = [];
+                localOptions.include.forEach(name => {
+                    if (!targetFunctions.includes(name) && isFunction(promisifiedObject[name])) {
+                        targetFunctions.push(name);
+                    }
+                });
+            }
+            if (!!localOptions.exclude) {
+                localOptions.exclude.forEach(name => {
+                    targetFunctions = targetFunctions.filter(candidate => {
+                        return candidate !== name;
+                    });
+                });
+            }
+        }
+
+        // Promiseify the functions
+        targetFunctions.forEach((name) => {
             if (isFunction(promisifiedObject[name])) {
                 promisifiedObject[name] = Promiseify(promisifiedObject[name]);
             }
         });
         return promisifiedObject;
     } else {
-        throw 'Cannot promiseify type: ' + getType(fn);
+        throw 'Cannot promiseify type: ' + getType(target);
     }
 
 }

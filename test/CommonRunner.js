@@ -1,8 +1,12 @@
+import { SuperClass, SubClass } from './ClassDefinitions.js';
+
 export function run(Promiseifyish) {
 
     const isFunction = Promiseifyish.isFunction;
     const getType = Promiseifyish.getType;
     const isObject = Promiseifyish.isObject;
+    const execute = Promiseifyish.execute;
+    const getAllFunctionNames = Promiseifyish.getAllFunctionNames;
 
     describe('isFunction', () => {
 
@@ -138,6 +142,101 @@ export function run(Promiseifyish) {
         it('should return true when an object is passed in', () => {
             expect(isObject({})).toBe(true);
             expect(isObject({name: 'value'})).toBe(true);
+        });
+
+    });
+
+    describe('execute', () => {
+
+        it('should return null for undefined values', () => {
+            expect(execute(undefined)).toBe(null);
+        });
+
+        it('should return null for null values', () => {
+            expect(execute(null)).toBe(null);
+        });
+
+        it('should return null for boolean values', () => {
+            expect(execute(true)).toBe(null);
+            expect(execute(false)).toBe(null);
+        });
+
+        it('should return null for number values', () => {
+            expect(execute(Number.NEGATIVE_INFINITY)).toBe(null);
+            expect(execute(-10.01)).toBe(null);
+            expect(execute(-1)).toBe(null);
+            expect(execute(0)).toBe(null);
+            expect(execute(1)).toBe(null);
+            expect(execute(10.01)).toBe(null);
+            expect(execute(Number.POSITIVE_INFINITY)).toBe(null);
+        });
+
+        it('should return null for string values', () => {
+            expect(execute('')).toBe(null);
+            expect(execute('someString')).toBe(null);
+        });
+
+        it('should return null for object values', () => {
+            expect(execute({})).toBe(null);
+        });
+
+        it('should return the function return value for function values', () => {
+            expect(execute(()=>3)).toBe(3);
+        });
+
+    });
+
+    describe('getAllFunctionNames', () => {
+
+        it('should return the empty array for undefined', () => {
+            expect(getAllFunctionNames(undefined)).toEqual([]);
+        });
+
+        it('should return the empty array for null', () => {
+            expect(getAllFunctionNames(null)).toEqual([]);
+        });
+
+        it('should return the empty array for boolean values', () => {
+            expect(getAllFunctionNames(true)).toEqual([]);
+            expect(getAllFunctionNames(false)).toEqual([]);
+        });
+
+        it('should return the empty array for number values', () => {
+            expect(getAllFunctionNames(Number.NEGATIVE_INFINITY)).toEqual([]);
+            expect(getAllFunctionNames(-10.00)).toEqual([]);
+            expect(getAllFunctionNames(-1)).toEqual([]);
+            expect(getAllFunctionNames(0)).toEqual([]);
+            expect(getAllFunctionNames(1)).toEqual([]);
+            expect(getAllFunctionNames(10.00)).toEqual([]);
+            expect(getAllFunctionNames(Number.POSITIVE_INFINITY)).toEqual([]);
+        });
+
+        it('should return the empty array for strings', () => {
+            expect(getAllFunctionNames('')).toEqual([]);
+        });
+
+        it('should return the functions on an object', () => {
+            let someObject = {
+                booleanValue: true,
+                stringValue: 'stringValue',
+                numberValue: 1,
+                undefinedValue: undefined,
+                nullValue: null,
+                objectValue: {
+                    subBooleanValue: true
+                },
+                functionValue01: () => {},
+                functionValue02: () => {}
+            };
+            expect(getAllFunctionNames(someObject)).toEqual(['functionValue01', 'functionValue02'].sort());
+        });
+
+        it('should return the functions on an ES6 class', () => {
+            expect(getAllFunctionNames(new SuperClass())).toEqual(['functionOne', 'functionTwo'].sort());
+        });
+
+        it('should return the functions on an ES6 sub class', () => {
+            expect(getAllFunctionNames(new SubClass())).toEqual(['functionOne', 'functionTwo', 'functionThree'].sort());
         });
 
     });

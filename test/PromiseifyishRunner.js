@@ -1,4 +1,5 @@
 import { createTestFunctionDescriptor } from './TestFunctionGenerator.js';
+import { SuperClass, SubClass } from './ClassDefinitions.js';
 
 /**
  * A convienence method for testing Promiseifyish implementation.
@@ -252,6 +253,130 @@ export function run(Promiseifyish) {
 
                 // Return the promise chain
                 return result.catch(fail);
+            });
+
+            describe('Options', () => {
+
+                it('should not promiseify excluded names', () => {
+                    let someObject = {
+                        toExclude: () => {return {name: 'toExclude'}},
+                        toPromiseify: () => {return {name: 'toPromise'}}
+                    };
+
+                    let promiseifiedObject = Promiseify(someObject, {exclude: ['toExclude']});
+                    expect(promiseifiedObject.toPromiseify().then).toEqual(expect.any(Function));
+                    expect(promiseifiedObject.toExclude().then).not.toBeDefined();
+                });
+
+                it('should promiseify only specified names', () => {
+                    let someObject = {
+                        toOnly: () => {return {name: 'toOnly'}},
+                        toInclude: () => {return {name: 'toInclude'}},
+                        toExclude: () => {return {name: 'toExclude'}}
+                    };
+
+                    let promiseifiedObject = Promiseify(someObject, {only: ['toOnly']});
+                    expect(promiseifiedObject.toOnly().then).toEqual(expect.any(Function));
+                    expect(promiseifiedObject.toInclude().then).not.toBeDefined();
+                    expect(promiseifiedObject.toExclude().then).not.toBeDefined();
+                });
+
+                it('should promiseify only specified names and ignore "exclude"', () => {
+                    let someObject = {
+                        toOnly: () => {return {name: 'toOnly'}},
+                        toInclude: () => {return {name: 'toInclude'}},
+                        toExclude: () => {return {name: 'toExclude'}}
+                    };
+
+                    let promiseifiedObject = Promiseify(someObject, {only: ['toOnly'], exclude: ['toOnly']});
+                    expect(promiseifiedObject.toOnly().then).toEqual(expect.any(Function));
+                    expect(promiseifiedObject.toInclude().then).not.toBeDefined();
+                    expect(promiseifiedObject.toExclude().then).not.toBeDefined();
+                });
+
+                it('should promiseify only specified names and ignore "include"', () => {
+                    let someObject = {
+                        toOnly: () => {return {name: 'toOnly'}},
+                        toInclude: () => {return {name: 'toInclude'}},
+                        toExclude: () => {return {name: 'toExclude'}}
+                    };
+
+                    let promiseifiedObject = Promiseify(someObject, {only: ['toOnly'], include: ['toInclude']});
+                    expect(promiseifiedObject.toOnly().then).toEqual(expect.any(Function));
+                    expect(promiseifiedObject.toInclude().then).not.toBeDefined();
+                    expect(promiseifiedObject.toExclude().then).not.toBeDefined();
+                });
+
+                it('should promiseify included names while excluding specified names', () => {
+                    let someObject = {
+                        toInclude: () => {return {name: 'toInclude'}},
+                        toExclude: () => {return {name: 'toExclude'}}
+                    };
+
+                    let promiseifiedObject = Promiseify(someObject, {include: ['toInclude', 'toExclude'], exclude: ['toExclude']});
+                    expect(promiseifiedObject.toInclude().then).toEqual(expect.any(Function));
+                    expect(promiseifiedObject.toExclude().then).not.toEqual(expect.any(Function));
+                });
+
+                it('should not promiseify included names that do not exist', () => {
+                    let someObject = {
+                        toInclude: () => {return {name: 'toInclude'}},
+                        toExclude: () => {return {name: 'toExclude'}}
+                    };
+
+                    let promiseifiedObject = Promiseify(someObject, {include: ['toInclude'], exclude: ['toExclude']});
+                    expect(promiseifiedObject.toInclude().then).toEqual(expect.any(Function));
+                    expect(promiseifiedObject.toExclude().then).not.toEqual(expect.any(Function));
+                    expect(promiseifiedObject.toIncludes).not.toBeDefined();
+                });
+
+                describe('ES6 Classes', () => {
+
+                    ('should include all names', () => {
+                        let someObject = new SuperClass();
+                        let promisifiedObject = Promiseify(someObject);
+                        expect(promisifiedObject.functionOne().then).toEqual(expect.any(Function));
+                        expect(promisifiedObject.functionTwo().then).toEqual(expect.any(Function));
+                    });
+
+                    ('should only promiseify specified functions', () => {
+                        let someObject = new SuperClass();
+                        let promisifiedObject = Promiseify(someObject, {only: ['functionOne']});
+                        expect(promisifiedObject.functionOne().then).toEqual(expect.any(Function));
+                        expect(promisifiedObject.functionTwo().then).not.toBeDefined();
+                    });
+
+                    ('should include only specified functions', () => {
+                        let someObject = new SuperClass();
+                        let promisifiedObject = Promiseify(someObject, {include: ['functionOne']});
+                        expect(promisifiedObject.functionOne().then).toEqual(expect.any(Function));
+                        expect(promisifiedObject.functionTwo().then).not.toBeDefined();
+                    });
+
+                    ('should exclude specified functions', () => {
+                        let someObject = new SuperClass();
+                        let promisifiedObject = Promiseify(someObject, {exclude: ['functionTwo']});
+                        expect(promisifiedObject.functionOne().then).toEqual(expect.any(Function));
+                        expect(promisifiedObject.functionTwo().then).not.toBeDefined();
+                    });
+
+                    ('should exclude specified functions which have been included', () => {
+                        let someObject = new SuperClass();
+                        let promisifiedObject = Promiseify(someObject, {include: ['functionOne', 'functionTwo'], exclude: ['functionTwo']});
+                        expect(promisifiedObject.functionOne().then).toEqual(expect.any(Function));
+                        expect(promisifiedObject.functionTwo().then).not.toBeDefined();
+                    });
+
+                    ('should include sub class and super class names', () => {
+                        let someObject = new SubClass();
+                        let promisifiedObject = Promiseify(someObject);
+                        expect(promisifiedObject.functionOne().then).toEqual(expect.any(Function));
+                        expect(promisifiedObject.functionTwo().then).toEqual(expect.any(Function));
+                        expect(promisifiedObject.functionThree().then).toEqual(expect.any(Function));
+                    });
+
+                });
+
             });
 
         });

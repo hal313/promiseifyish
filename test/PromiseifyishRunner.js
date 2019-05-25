@@ -379,121 +379,246 @@ export function run(Promiseifyish) {
 
                 describe('outcomeRedirector', () => {
 
-                    describe('successCallback', () => {
+                    // The "Node Style" is an error-first callback parameter arrangement. Only one
+                    // callback function is used and the first parameter indicates error (or null,
+                    // if no error is present).
+                    describe('Node Style', () => {
 
-                        let invokeSuccess = (successCallback, errorCallback) => {
-                            successCallback();
+                        let invokeSucess = callback => {
+                            callback(null, 'someValue1', 'someValue2');
+                        };
+
+                        let invokeFailure = callback => {
+                            callback('someError');
+                        };
+
+                        let outcomeRedirector = error => {
+                            return !error;
                         }
 
-                        let invokeFailure = (successCallback, errorCallback) => {
-                            successCallback('error');
-                        }
+                        describe('Success', () => {
 
-                        it('should allow the outcomeRedirector to modify the outcome by converting a successful outcome to a failure when the success callback is passed a parameter', () => {
+                            it('should invoke the success callback with [null, value, value]', () => {
+                                let promiseified = Promiseify(invokeSucess, {
+                                    outcomeRedirector: outcomeRedirector
+                                });
 
-                            // If there is no value, return true; if there is a value, return false
-                            let outcomeRedirector = val => !val;
-
-                            let invokeSuccessPromiseified = Promiseify(invokeSuccess, {
-                                outcomeRedirector: outcomeRedirector
+                                return promiseified()
+                                    .then(result => {
+                                        expect(result.length).toBe(3);
+                                        expect(result[0]).toBe(null);
+                                        expect(result[1]).toBe('someValue1');
+                                        expect(result[2]).toBe('someValue2');
+                                    });
+                                    // 'catch' should not be invoked
+                                    // .catch(error => Promise.reject(error));
                             });
-
-                            let invokeFailurePromiseified = Promiseify(invokeFailure, {
-                                outcomeRedirector: outcomeRedirector
-                            });
-
-                            return Promise.resolve()
-                                .then(() => invokeSuccessPromiseified())
-                                // 'catch' should not be invoked!
-                                .catch(() => Promise.reject())
-                                .then(() => invokeFailurePromiseified())
-                                // 'then' should not be invoked
-                                .then(() => Promise.reject())
-                                .catch(() => {});
 
                         });
 
-                        it('should allow the outcomeRedirector to modify the outcome by converting a failure outcome to a success', () => {
+                        describe('Failure', () => {
 
-                            // If there is a value, return true; if there is no value, return false
-                            let outcomeRedirector = val => !!val;
+                            it('should invoke the success callback with [error]', () => {
+                                let promiseified = Promiseify(invokeFailure, {
+                                    outcomeRedirector: outcomeRedirector
+                                });
 
-                            let invokeSuccessPromiseified = Promiseify(invokeSuccess, {
-                                outcomeRedirector: outcomeRedirector
+                                return promiseified()
+                                    // 'then' should not be invoked
+                                    .then(() => Promise.reject())
+                                    .catch(error => {
+                                        expect(error.length).toBe(1);
+                                        expect(error[0]).toBe('someError');
+                                    });
                             });
-
-                            let invokeFailurePromiseified = Promiseify(invokeFailure, {
-                                outcomeRedirector: outcomeRedirector
-                            });
-
-                            return Promise.resolve()
-                                .then(() => invokeSuccessPromiseified())
-                                // 'then' should not be invoked
-                                .then(() => Promise.reject())
-                                .catch(() => {})
-                                .then(() => invokeFailurePromiseified())
-                                // 'catch' should not be invoked
-                                .catch(() => Promise.reject());
 
                         });
 
                     });
 
-                    describe('failureCallback', () => {
+                    // The Chrome API typically has only one callback, and the error status is
+                    // indicated in a global.
+                    describe('Chrome API Style', () => {
 
-                        let invokeSuccess = (successCallback, errorCallback) => {
-                            errorCallback();
-                        }
+                        let lastError = null;
 
-                        let invokeFailure = (successCallback, errorCallback) => {
-                            errorCallback('error');
-                        }
-
-                        it('should allow the outcomeRedirector to modify the outcome by converting a successful outcome to a failure when the success callback is passed a parameter', () => {
-
-                            // If there is no value, return true; if there is a value, return false
-                            let outcomeRedirector = val => {
-                                return !val;
-                            }
-                            let invokeSuccessPromiseified = Promiseify(invokeSuccess, {
-                                outcomeRedirector: outcomeRedirector
-                            });
-
-                            let invokeFailurePromiseified = Promiseify(invokeFailure, {
-                                outcomeRedirector: outcomeRedirector
-                            });
-
-                            return Promise.resolve()
-                                .then(() => invokeSuccessPromiseified())
-                                // 'catch' should not be invoked
-                                .catch(() => Promise.reject())
-                                .then(() => invokeFailurePromiseified())
-                                 // 'then' should not be invoked
-                                .then(() => Promise.reject())
-                                .catch(() => {});
+                        beforeEach(() => {
+                            lastError = null;
                         });
 
-                        it('should allow the outcomeRedirector to modify the outcome by converting a failure outcome to a success', () => {
+                        let invokeSucess = callback => {
+                            callback('someValue1', 'someValue2');
+                        };
 
-                            // If there is a value, return true; if there is no value, return false
-                            let outcomeRedirector = val => !!val;
+                        let invokeFailure = callback => {
+                            lastError = true;
+                            callback();
+                        };
 
-                            let invokeSuccessPromiseified = Promiseify(invokeSuccess, {
-                                outcomeRedirector: outcomeRedirector
+                        let outcomeRedirector = () => {
+                            return !lastError;
+                        }
+
+                        describe('Success', () => {
+
+                            it('should invoke the success callback with [null, value, value]', () => {
+                                let promiseified = Promiseify(invokeSucess, {
+                                    outcomeRedirector: outcomeRedirector
+                                });
+
+                                return promiseified()
+                                    .then(result => {
+                                        expect(result.length).toBe(2);
+                                        expect(result[0]).toBe('someValue1');
+                                        expect(result[1]).toBe('someValue2');
+                                    });
+                                    // 'catch' should not be invoked
+                                    // .catch(error => Promise.reject(error));
                             });
 
-                            let invokeFailurePromiseified = Promiseify(invokeFailure, {
-                                outcomeRedirector: outcomeRedirector
+                        });
+
+                        describe('Failure', () => {
+
+                            it('should invoke the success callback with [error]', () => {
+                                let promiseified = Promiseify(invokeFailure, {
+                                    outcomeRedirector: outcomeRedirector
+                                });
+
+                                return promiseified()
+                                    // 'then' should not be invoked
+                                    .then(() => Promise.reject())
+                                    .catch(error => {
+                                        expect(error.length).toBe(0);
+                                    });
                             });
 
-                            return Promise.resolve()
-                                .then(() => invokeSuccessPromiseified())
-                                // 'then' should not be invoked
-                                .then(() => Promise.reject())
-                                .catch(() => {})
-                                .then(() => invokeFailurePromiseified())
-                                // 'catch' should not be invoked
-                                .catch(() => Promise.reject());
+                        });
+
+                    });
+
+                    describe('Flip Result', () => {
+
+                        describe('successCallback', () => {
+
+                            let invokeSuccess = (successCallback, errorCallback) => {
+                                successCallback();
+                            }
+
+                            let invokeFailure = (successCallback, errorCallback) => {
+                                successCallback('error');
+                            }
+
+                            it('should allow the outcomeRedirector to modify the outcome by converting a successful outcome to a failure when the success callback is passed a parameter', () => {
+
+                                // If there is no value, return true; if there is a value, return false
+                                let outcomeRedirector = val => !val;
+
+                                let invokeSuccessPromiseified = Promiseify(invokeSuccess, {
+                                    outcomeRedirector: outcomeRedirector
+                                });
+
+                                let invokeFailurePromiseified = Promiseify(invokeFailure, {
+                                    outcomeRedirector: outcomeRedirector
+                                });
+
+                                return Promise.resolve()
+                                    .then(() => invokeSuccessPromiseified())
+                                    // 'catch' should not be invoked!
+                                    .catch(() => Promise.reject())
+                                    .then(() => invokeFailurePromiseified())
+                                    // 'then' should not be invoked
+                                    .then(() => Promise.reject())
+                                    // 'catch' should be invoked
+                                    .catch(() => {});
+
+                            });
+
+                            it('should allow the outcomeRedirector to modify the outcome by converting a failure outcome to a success', () => {
+
+                                // If there is a value, return true; if there is no value, return false
+                                let outcomeRedirector = val => !!val;
+
+                                let invokeSuccessPromiseified = Promiseify(invokeSuccess, {
+                                    outcomeRedirector: outcomeRedirector
+                                });
+
+                                let invokeFailurePromiseified = Promiseify(invokeFailure, {
+                                    outcomeRedirector: outcomeRedirector
+                                });
+
+                                return Promise.resolve()
+                                    .then(() => invokeSuccessPromiseified())
+                                    // 'then' should not be invoked
+                                    .then(() => Promise.reject())
+                                    // 'catch' should be invoked
+                                    .catch(() => {})
+                                    .then(() => invokeFailurePromiseified())
+                                    // 'catch' should not be invoked
+                                    // .catch(() => Promise.reject());
+
+                            });
+
+                        });
+
+                        describe('failureCallback', () => {
+
+                            let invokeSuccess = (successCallback, errorCallback) => {
+                                errorCallback();
+                            }
+
+                            let invokeFailure = (successCallback, errorCallback) => {
+                                errorCallback('error');
+                            }
+
+                            it('should allow the outcomeRedirector to modify the outcome by converting a successful outcome to a failure when the success callback is passed a parameter', () => {
+
+                                // If there is no value, return true; if there is a value, return false
+                                let outcomeRedirector = val => {
+                                    return !val;
+                                }
+                                let invokeSuccessPromiseified = Promiseify(invokeSuccess, {
+                                    outcomeRedirector: outcomeRedirector
+                                });
+
+                                let invokeFailurePromiseified = Promiseify(invokeFailure, {
+                                    outcomeRedirector: outcomeRedirector
+                                });
+
+                                return Promise.resolve()
+                                    .then(() => invokeSuccessPromiseified())
+                                    // 'catch' should not be invoked
+                                    .catch(() => Promise.reject())
+                                    .then(() => invokeFailurePromiseified())
+                                     // 'then' should not be invoked
+                                    .then(() => Promise.reject())
+                                    // 'catch' should be invoked
+                                    .catch(() => {});
+                            });
+
+                            it('should allow the outcomeRedirector to modify the outcome by converting a failure outcome to a success', () => {
+
+                                // If there is a value, return true; if there is no value, return false
+                                let outcomeRedirector = val => !!val;
+
+                                let invokeSuccessPromiseified = Promiseify(invokeSuccess, {
+                                    outcomeRedirector: outcomeRedirector
+                                });
+
+                                let invokeFailurePromiseified = Promiseify(invokeFailure, {
+                                    outcomeRedirector: outcomeRedirector
+                                });
+
+                                return Promise.resolve()
+                                    .then(() => invokeSuccessPromiseified())
+                                    // 'then' should not be invoked
+                                    .then(() => Promise.reject())
+                                    .catch(() => {})
+                                    .then(() => invokeFailurePromiseified())
+                                    // 'catch' should not be invoked
+                                    // .catch(() => Promise.reject());
+
+                            });
 
                         });
 

@@ -126,6 +126,8 @@
 
 
   function Promiseify(target, options) {
+    options = options || {};
+
     if (isFunction(target)) {
       return function () {
         // if arguments.length = 0
@@ -191,18 +193,51 @@
 
 
         return new Promise(function (resolve, reject) {
-          // Push the success handler onto args
+          /**
+           * Executes the success handlers (invokes the callback and resolves the promise).
+           *
+           * @param {*[]} executionArgs arguments to pass to the handlers
+           */
+          function executeSuccess(executionArgs) {
+            execute(successHandler, executionArgs);
+            resolve(executionArgs);
+          }
+          /**
+           * Executes the failure handlers (invokes the callback rejects the promise).
+           *
+           * @param {*[]} executionArgs arguments to pass to the handlers
+           */
+
+
+          function executeFailure(executionArgs) {
+            execute(failureHandler, executionArgs);
+            reject(executionArgs);
+          } // Push the success handler onto args
+
+
           executionArguments.push(function onSuccessPromiseified() {
             // Get the arguments
-            var executitionArgs = Array.from(arguments);
-            execute(successHandler, executitionArgs);
-            resolve(executitionArgs);
+            var executionArgs = Array.from(arguments); // Be sure that the outcome redirector is defined
+
+            options.outcomeRedirector = options.outcomeRedirector || function trueRedirector() {
+              return true;
+            }; // Execute and dispatch
+            // TODO: execute: if not function, return value?
+
+
+            !!execute(options.outcomeRedirector, executionArgs) ? executeSuccess(executionArgs) : executeFailure(executionArgs);
           }); // Push the failure handler onto args
 
           executionArguments.push(function onErrorPromiseified() {
-            var executitionArgs = Array.from(arguments);
-            execute(failureHandler, executitionArgs);
-            reject(executitionArgs);
+            var executionArgs = Array.from(arguments); // Be sure that the outcome redirector is defined
+
+            options.outcomeRedirector = options.outcomeRedirector || function trueRedirector() {
+              return false;
+            }; // Execute and dispatch
+
+
+            !!execute(options.outcomeRedirector, executionArgs) ? executeSuccess(executionArgs) : executeFailure(executionArgs); // execute(failureHandler, executionArgs);
+            // reject(executionArgs);
           }); // Execute the function (throwing will reject the promise with the error)
 
           target.apply({}, executionArguments);
@@ -210,25 +245,23 @@
       };
     } else if (isObject(target)) {
       var promisifiedObject = target;
-      var targetFunctions = getAllFunctionNames(target); // Conditional promiseifying
+      var targetFunctions = getAllFunctionNames(target);
 
-      var localOptions = options || {};
-
-      if (!!localOptions.only) {
-        targetFunctions = localOptions.only;
+      if (!!options.only) {
+        targetFunctions = options.only;
       } else {
-        if (!!localOptions.include) {
+        if (!!options.include) {
           // Start from a blank slate
           targetFunctions = [];
-          localOptions.include.forEach(function (name) {
+          options.include.forEach(function (name) {
             if (!targetFunctions.includes(name) && isFunction(promisifiedObject[name])) {
               targetFunctions.push(name);
             }
           });
         }
 
-        if (!!localOptions.exclude) {
-          localOptions.exclude.forEach(function (name) {
+        if (!!options.exclude) {
+          options.exclude.forEach(function (name) {
             targetFunctions = targetFunctions.filter(function (candidate) {
               return candidate !== name;
             });
@@ -239,7 +272,7 @@
 
       targetFunctions.forEach(function (name) {
         if (isFunction(promisifiedObject[name])) {
-          promisifiedObject[name] = Promiseify(promisifiedObject[name]);
+          promisifiedObject[name] = Promiseify(promisifiedObject[name], options);
         }
       });
       return promisifiedObject;

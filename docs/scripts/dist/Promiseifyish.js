@@ -126,6 +126,9 @@
 
 
   function Promiseify(target, options) {
+    // Normalize the options
+    options = options || {};
+
     if (isFunction(target)) {
       return function () {
         // if arguments.length = 0
@@ -191,44 +194,76 @@
 
 
         return new Promise(function (resolve, reject) {
-          // Push the success handler onto args
+          /**
+           * Executes the success handlers (invokes the callback and resolves the promise).
+           *
+           * @param {*[]} executionArgs arguments to pass to the handlers
+           */
+          function executeSuccess(executionArgs) {
+            execute(successHandler, executionArgs);
+            resolve(executionArgs);
+          }
+          /**
+           * Executes the failure handlers (invokes the callback rejects the promise).
+           *
+           * @param {*[]} executionArgs arguments to pass to the handlers
+           */
+
+
+          function executeFailure(executionArgs) {
+            execute(failureHandler, executionArgs);
+            reject(executionArgs);
+          } // Push the success handler onto args
+
+
           executionArguments.push(function onSuccessPromiseified() {
             // Get the arguments
-            var executitionArgs = Array.from(arguments);
-            execute(successHandler, executitionArgs);
-            resolve(executitionArgs);
+            var executionArgs = Array.from(arguments); // Be sure that the outcome redirector is defined
+
+            options.outcomeRedirector = options.outcomeRedirector || function trueRedirector() {
+              return true;
+            }; // Execute and dispatch
+
+
+            !!execute(options.outcomeRedirector, executionArgs) ? executeSuccess(executionArgs) : executeFailure(executionArgs);
           }); // Push the failure handler onto args
 
           executionArguments.push(function onErrorPromiseified() {
-            var executitionArgs = Array.from(arguments);
-            execute(failureHandler, executitionArgs);
-            reject(executitionArgs);
+            // Get the arguments
+            var executionArgs = Array.from(arguments); // Be sure that the outcome redirector is defined
+
+            options.outcomeRedirector = options.outcomeRedirector || function falseRedirector() {
+              return false;
+            }; // Execute and dispatch
+
+
+            !!execute(options.outcomeRedirector, executionArgs) ? executeSuccess(executionArgs) : executeFailure(executionArgs);
           }); // Execute the function (throwing will reject the promise with the error)
 
           target.apply({}, executionArguments);
         });
       };
     } else if (isObject(target)) {
-      var promisifiedObject = target;
-      var targetFunctions = getAllFunctionNames(target); // Conditional promiseifying
+      var promisifiedObject = target; // Start with ALL functions on the target
 
-      var localOptions = options || {};
+      var targetFunctions = getAllFunctionNames(target); // Handle the case where 'only' is specified
 
-      if (!!localOptions.only) {
-        targetFunctions = localOptions.only;
+      if (!!options.only) {
+        targetFunctions = options.only;
       } else {
-        if (!!localOptions.include) {
-          // Start from a blank slate
+        if (!!options.include) {
+          // Start from a clean slate
           targetFunctions = [];
-          localOptions.include.forEach(function (name) {
+          options.include.forEach(function (name) {
             if (!targetFunctions.includes(name) && isFunction(promisifiedObject[name])) {
               targetFunctions.push(name);
             }
           });
-        }
+        } // Now, remove any exclusions
 
-        if (!!localOptions.exclude) {
-          localOptions.exclude.forEach(function (name) {
+
+        if (!!options.exclude) {
+          options.exclude.forEach(function (name) {
             targetFunctions = targetFunctions.filter(function (candidate) {
               return candidate !== name;
             });
@@ -239,7 +274,7 @@
 
       targetFunctions.forEach(function (name) {
         if (isFunction(promisifiedObject[name])) {
-          promisifiedObject[name] = Promiseify(promisifiedObject[name]);
+          promisifiedObject[name] = Promiseify(promisifiedObject[name], options);
         }
       });
       return promisifiedObject;
@@ -247,4 +282,27 @@
       throw 'Cannot promiseify type: ' + getType(target);
     }
   }
+
+  function buildWithOutcomeRedirector(target, options, outcomeRedirector) {
+    options = options || {};
+    options.outcomeRedirector = outcomeRedirector;
+    return Promiseify(target, options);
+  }
+
+  Promiseify.nodeStyle = function (target, options) {
+    return buildWithOutcomeRedirector(target, options, function (error) {
+      return !error;
+    });
+  };
+
+  Promiseify.chromeRuntimeAPIStyle = function (target, options) {
+    return buildWithOutcomeRedirector(target, options, function () {
+      if (window.chrome && window.chrome.runtime) {
+        return undefined === window.chrome.runtime.lastError || null === window.chrome.runtime.lastError;
+      } // Assume success (the variable was not present, most likely)
+
+
+      return true;
+    });
+  };
 });

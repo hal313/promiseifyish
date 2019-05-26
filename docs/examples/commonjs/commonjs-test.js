@@ -1,5 +1,5 @@
 // Load the module
-var Promiseifyish = require('../../scripts/dist/Promiseifyish');
+var Promiseifyish = require('../../scripts/Promiseifyish');
 
 // Get a reference to the Promiseify function
 var Promiseify = Promiseifyish.Promiseify,

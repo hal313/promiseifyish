@@ -89,6 +89,9 @@ export function getAllFunctionNames(target) {
  */
 export function Promiseify(target, options) {
 
+    // Normalize the options
+    options = options || {};
+
     if (isFunction(target)) {
         return function() {
             // if arguments.length = 0
@@ -160,19 +163,49 @@ export function Promiseify(target, options) {
             //
             // It is the responsibility of the function implementation to invoke the callbacks!
             return new Promise((resolve, reject) => {
+
+                /**
+                 * Executes the success handlers (invokes the callback and resolves the promise).
+                 *
+                 * @param {*[]} executionArgs arguments to pass to the handlers
+                 */
+                function executeSuccess(executionArgs) {
+                    execute(successHandler, executionArgs);
+                    resolve(executionArgs);
+                }
+
+                /**
+                 * Executes the failure handlers (invokes the callback rejects the promise).
+                 *
+                 * @param {*[]} executionArgs arguments to pass to the handlers
+                 */
+                function executeFailure(executionArgs) {
+                    execute(failureHandler, executionArgs);
+                    reject(executionArgs);
+                }
+
                 // Push the success handler onto args
                 executionArguments.push(function onSuccessPromiseified() {
                     // Get the arguments
-                    let executitionArgs = Array.from(arguments);
-                    execute(successHandler, executitionArgs);
-                    resolve(executitionArgs);
+                    let executionArgs = Array.from(arguments);
+
+                    // Be sure that the outcome redirector is defined
+                    options.outcomeRedirector = options.outcomeRedirector || function trueRedirector() { return true; };
+
+                    // Execute and dispatch
+                    !!execute(options.outcomeRedirector, executionArgs) ? executeSuccess(executionArgs) : executeFailure(executionArgs);
                 });
 
                 // Push the failure handler onto args
                 executionArguments.push(function onErrorPromiseified() {
-                    let executitionArgs = Array.from(arguments);
-                    execute(failureHandler, executitionArgs);
-                    reject(executitionArgs);
+                    // Get the arguments
+                    let executionArgs = Array.from(arguments);
+
+                    // Be sure that the outcome redirector is defined
+                    options.outcomeRedirector = options.outcomeRedirector || function falseRedirector() { return false; };
+
+                    // Execute and dispatch
+                    !!execute(options.outcomeRedirector, executionArgs) ? executeSuccess(executionArgs) : executeFailure(executionArgs);
                 });
 
                 // Execute the function (throwing will reject the promise with the error)
@@ -181,25 +214,25 @@ export function Promiseify(target, options) {
         }
     } else if (isObject(target)) {
         let promisifiedObject = target;
+        // Start with ALL functions on the target
         let targetFunctions = getAllFunctionNames(target);
 
-        // Conditional promiseifying
-        let localOptions = options || {};
-
-        if (!!localOptions.only) {
-            targetFunctions = localOptions.only;
+        // Handle the case where 'only' is specified
+        if (!!options.only) {
+            targetFunctions = options.only;
         } else {
-            if (!!localOptions.include) {
-                // Start from a blank slate
+            if (!!options.include) {
+                // Start from a clean slate
                 targetFunctions = [];
-                localOptions.include.forEach(name => {
+                options.include.forEach(name => {
                     if (!targetFunctions.includes(name) && isFunction(promisifiedObject[name])) {
                         targetFunctions.push(name);
                     }
                 });
             }
-            if (!!localOptions.exclude) {
-                localOptions.exclude.forEach(name => {
+            // Now, remove any exclusions
+            if (!!options.exclude) {
+                options.exclude.forEach(name => {
                     targetFunctions = targetFunctions.filter(candidate => {
                         return candidate !== name;
                     });
@@ -210,7 +243,7 @@ export function Promiseify(target, options) {
         // Promiseify the functions
         targetFunctions.forEach((name) => {
             if (isFunction(promisifiedObject[name])) {
-                promisifiedObject[name] = Promiseify(promisifiedObject[name]);
+                promisifiedObject[name] = Promiseify(promisifiedObject[name], options);
             }
         });
         return promisifiedObject;
@@ -219,3 +252,35 @@ export function Promiseify(target, options) {
     }
 
 }
+
+/**
+ * Creates a function which will override any outcomeRedirector in options with the
+ * optionsRedirector passed in.
+ *
+ * @param {Object|Function} target the object or function to promiseify
+ * @param {Object} [options] options to pass to the processor
+ * @param {Function} outcomeRedirector the outcome redirector to use
+ */
+function buildWithOutcomeRedirector(target, options, outcomeRedirector) {
+    options = options || {};
+    options.outcomeRedirector = outcomeRedirector;
+    return Promiseify(target, options);
+}
+
+/**
+ * Node-style promiseification. Single callback, error first.
+ *
+ * function callback(error, [...]);
+ */
+Promiseify.nodeStyle = (target, options) => buildWithOutcomeRedirector(target, options, error => !error);
+
+/**
+ * Chrome runtime API promiseification. Single callback, global failure indicator (chrome.runtime.lastError).
+ */
+Promiseify.chromeRuntimeAPIStyle = (target, options) => buildWithOutcomeRedirector(target, options, () => {
+    if (window.chrome && window.chrome.runtime) {
+        return undefined === window.chrome.runtime.lastError || null === window.chrome.runtime.lastError;
+    }
+    // Assume success (the variable was not present, most likely)
+    return true;
+});

@@ -1,5 +1,5 @@
 // Load the module
-require(['../../scripts/dist/Promiseifyish.js'], function onLoaded(Promiseifyish) {
+require(['../../scripts/Promiseifyish.js'], function onLoaded(Promiseifyish) {
 
     // Assign the function
     var Promiseify = Promiseifyish.Promiseify,

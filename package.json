@@ -1,6 +1,6 @@
 {
   "name": "@hal313/promiseifyish",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Adds promise style notation to Firebase style functions",
   "homepage": "https://github.com/hal313/promiseifyish",
   "main": "dist/Promiseifyish.js",
@@ -23,14 +23,14 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "clean": "rm -rf dist",
-    "build": "npm run clean && babel src -d dist",
-    "dist": "npm run build && uglifyjs --compress --mangle --source-map -o dist/Promiseifyish.min.js dist/Promiseifyish.js",
+    "build": "npm run clean && babel src -d dist && cp src/Promiseifyish.js dist/Promiseifyish.es6.js",
+    "dist": "npm run clean && npm run build && uglifyjs --compress --mangle --source-map -o dist/Promiseifyish.min.js dist/Promiseifyish.js",
     "develop": "npm run dist && npm test",
-    "site": "cp src/Promiseifyish.js docs/scripts/src && cp dist/* docs/scripts/dist",
+    "site": "npm run dist && cp dist/* docs/scripts",
     "watch:build": "npm-watch build",
     "watch:dist": "npm-watch dist",
     "watch:develop": "npm-watch develop",
-    "release": "ext/release.sh --skip-push"
+    "release": "ext/release.sh --skip-push --"
   },
   "author": "John R. Ghidiu",
   "license": "MIT",

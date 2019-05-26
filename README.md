@@ -104,6 +104,31 @@ promiseifiedObject.functionMember(true, 'some value')
     .catch(error => console.log('failure', error));
 ```
 
+## Advanced Usage
+
+Passing *options* to the `Promiseify` function can alter the behavior of promiseification.
+
+If neither `only` nor `include` are specified, all functions are included *except for* functions on `Object`.
+
+### only
+
+Using `{only: ['function1'[, ..., 'functionN']]}` as the `options` object parameter will promiseify *only* the specified functions, regardless of any other options (specifically `exclude`).
+
+### include
+
+Using `{include: ['function1'[, ..., 'functionN']]` as the `options` object parameter will include only the specified functions, subject to any function in `exclude`.
+
+### exclude
+
+Using `{exclude: ['function1'[, ..., 'functionN']]` as the `options` object parameter will exclude the specified functions from promiseification. This value is not used
+when `only` is used.
+
+### outcomeRedirector
+
+Using `{outcomeRedirector: (args) => { /* return true or false */}}` as the `options` object parameter will
+
+Some API's are not designed with both a success callback and a failure callback.
+
 ## Developing
 
 ### Setup
@@ -131,6 +156,7 @@ npm run test:watch
 A build produces the contents of the `dist` folder:
 
 * A UMD version of the library (`dist/Promiseifyish.js`)
+* An ES6 version of the library (`dist/Promiseifyish.es6.js`)
 
 Building:
 

@@ -87,7 +87,7 @@ export function getAllFunctionNames(target) {
  * @param {Object} [options] the optional options for promiseification
  * @returns {Function|Object} the promiseified target
  */
-export function Promiseify(target, options) {
+export function Promiseify(target, options, object) {
 
     // Normalize the options
     options = options || {};
@@ -209,7 +209,7 @@ export function Promiseify(target, options) {
                 });
 
                 // Execute the function (throwing will reject the promise with the error)
-                target.apply({}, executionArguments);
+                target.apply(object, executionArguments);
             });
         }
     } else if (isObject(target)) {
@@ -243,7 +243,7 @@ export function Promiseify(target, options) {
         // Promiseify the functions
         targetFunctions.forEach((name) => {
             if (isFunction(promisifiedObject[name])) {
-                promisifiedObject[name] = Promiseify(promisifiedObject[name], options);
+                promisifiedObject[name] = Promiseify(promisifiedObject[name], options, target);
             }
         });
         return promisifiedObject;

@@ -126,6 +126,30 @@
 
 
   function Promiseify(target, options) {
+    // Invoke the work function
+    return doPromiseify(target, options, null);
+  }
+  /**
+   * Promiseifies a function or every function on a target. If the target is an object, all functions will be promiseified.
+   *
+   * Options:
+   *  only: String[]
+   *  include: String[]
+   *  exclude: String[]
+   *
+   * If 'only' is specified, then exactly those functions will be promisieifed
+   * If 'include' is specified, then those functions will be promisified, unless explicitly overriden by 'exclude'
+   * If 'exclude' is specified, then those functions will NOT be promisified; ignored when 'only' is specified
+   * The default behavior is to promiseify all functions (except those defined on Object).
+   *
+   * @param {Function|Object} target the function or object to promiseify
+   * @param {Object} [options] the optional options for promiseification
+   * @param {Object} [context] the context (parent object of functions) to use when applying functions
+   * @returns {Function|Object} the promiseified target
+   */
+
+
+  function doPromiseify(target, options, context) {
     // Normalize the options
     options = options || {};
 
@@ -240,7 +264,7 @@
             !!execute(options.outcomeRedirector, executionArgs) ? executeSuccess(executionArgs) : executeFailure(executionArgs);
           }); // Execute the function (throwing will reject the promise with the error)
 
-          target.apply({}, executionArguments);
+          target.apply(context, executionArguments);
         });
       };
     } else if (isObject(target)) {
@@ -274,7 +298,7 @@
 
       targetFunctions.forEach(function (name) {
         if (isFunction(promisifiedObject[name])) {
-          promisifiedObject[name] = Promiseify(promisifiedObject[name], options);
+          promisifiedObject[name] = doPromiseify(promisifiedObject[name], options, target);
         }
       });
       return promisifiedObject;

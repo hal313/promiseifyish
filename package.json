@@ -30,7 +30,7 @@
     "watch:build": "npm-watch build",
     "watch:dist": "npm-watch dist",
     "watch:develop": "npm-watch develop",
-    "release": "ext/release.sh --skip-push"
+    "release": "ext/release.sh --skip-push --"
   },
   "author": "John R. Ghidiu",
   "license": "MIT",

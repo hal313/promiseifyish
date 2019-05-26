@@ -253,13 +253,30 @@ export function Promiseify(target, options) {
 
 }
 
+/**
+ * Creates a function which will override any outcomeRedirector in options with the
+ * optionsRedirector passed in.
+ *
+ * @param {Object|Function} target the object or function to promiseify
+ * @param {Object} [options] options to pass to the processor
+ * @param {Function} outcomeRedirector the outcome redirector to use
+ */
 function buildWithOutcomeRedirector(target, options, outcomeRedirector) {
     options = options || {};
     options.outcomeRedirector = outcomeRedirector;
     return Promiseify(target, options);
 }
 
+/**
+ * Node-style promiseification. Single callback, error first.
+ *
+ * function callback(error, [...]);
+ */
 Promiseify.nodeStyle = (target, options) => buildWithOutcomeRedirector(target, options, error => !error);
+
+/**
+ * Chrome runtime API promiseification. Single callback, global failure indicator (chrome.runtime.lastError).
+ */
 Promiseify.chromeRuntimeAPIStyle = (target, options) => buildWithOutcomeRedirector(target, options, () => {
     if (window.chrome && window.chrome.runtime) {
         return undefined === window.chrome.runtime.lastError || null === window.chrome.runtime.lastError;

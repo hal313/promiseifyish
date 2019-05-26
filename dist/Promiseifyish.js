@@ -282,18 +282,37 @@
       throw 'Cannot promiseify type: ' + getType(target);
     }
   }
+  /**
+   * Creates a function which will override any outcomeRedirector in options with the
+   * optionsRedirector passed in.
+   *
+   * @param {Object|Function} target the object or function to promiseify
+   * @param {Object} [options] options to pass to the processor
+   * @param {Function} outcomeRedirector the outcome redirector to use
+   */
+
 
   function buildWithOutcomeRedirector(target, options, outcomeRedirector) {
     options = options || {};
     options.outcomeRedirector = outcomeRedirector;
     return Promiseify(target, options);
   }
+  /**
+   * Node-style promiseification. Single callback, error first.
+   *
+   * function callback(error, [...]);
+   */
+
 
   Promiseify.nodeStyle = function (target, options) {
     return buildWithOutcomeRedirector(target, options, function (error) {
       return !error;
     });
   };
+  /**
+   * Chrome runtime API promiseification. Single callback, global failure indicator (chrome.runtime.lastError).
+   */
+
 
   Promiseify.chromeRuntimeAPIStyle = function (target, options) {
     return buildWithOutcomeRedirector(target, options, function () {

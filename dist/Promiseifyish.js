@@ -126,6 +126,7 @@
 
 
   function Promiseify(target, options) {
+    // Normalize the options
     options = options || {};
 
     if (isFunction(target)) {
@@ -222,43 +223,44 @@
             options.outcomeRedirector = options.outcomeRedirector || function trueRedirector() {
               return true;
             }; // Execute and dispatch
-            // TODO: execute: if not function, return value?
 
 
             !!execute(options.outcomeRedirector, executionArgs) ? executeSuccess(executionArgs) : executeFailure(executionArgs);
           }); // Push the failure handler onto args
 
           executionArguments.push(function onErrorPromiseified() {
+            // Get the arguments
             var executionArgs = Array.from(arguments); // Be sure that the outcome redirector is defined
 
-            options.outcomeRedirector = options.outcomeRedirector || function trueRedirector() {
+            options.outcomeRedirector = options.outcomeRedirector || function falseRedirector() {
               return false;
             }; // Execute and dispatch
 
 
-            !!execute(options.outcomeRedirector, executionArgs) ? executeSuccess(executionArgs) : executeFailure(executionArgs); // execute(failureHandler, executionArgs);
-            // reject(executionArgs);
+            !!execute(options.outcomeRedirector, executionArgs) ? executeSuccess(executionArgs) : executeFailure(executionArgs);
           }); // Execute the function (throwing will reject the promise with the error)
 
           target.apply({}, executionArguments);
         });
       };
     } else if (isObject(target)) {
-      var promisifiedObject = target;
-      var targetFunctions = getAllFunctionNames(target);
+      var promisifiedObject = target; // Start with ALL functions on the target
+
+      var targetFunctions = getAllFunctionNames(target); // Handle the case where 'only' is specified
 
       if (!!options.only) {
         targetFunctions = options.only;
       } else {
         if (!!options.include) {
-          // Start from a blank slate
+          // Start from a clean slate
           targetFunctions = [];
           options.include.forEach(function (name) {
             if (!targetFunctions.includes(name) && isFunction(promisifiedObject[name])) {
               targetFunctions.push(name);
             }
           });
-        }
+        } // Now, remove any exclusions
+
 
         if (!!options.exclude) {
           options.exclude.forEach(function (name) {
@@ -280,4 +282,27 @@
       throw 'Cannot promiseify type: ' + getType(target);
     }
   }
+
+  function buildWithOutcomeRedirector(target, options, outcomeRedirector) {
+    options = options || {};
+    options.outcomeRedirector = outcomeRedirector;
+    return Promiseify(target, options);
+  }
+
+  Promiseify.nodeStyle = function (target, options) {
+    return buildWithOutcomeRedirector(target, options, function (error) {
+      return !error;
+    });
+  };
+
+  Promiseify.chromeRuntimeAPIStyle = function (target, options) {
+    return buildWithOutcomeRedirector(target, options, function () {
+      if (window.chrome && window.chrome.runtime) {
+        return undefined === window.chrome.runtime.lastError || null === window.chrome.runtime.lastError;
+      } // Assume success (the variable was not present, most likely)
+
+
+      return true;
+    });
+  };
 });

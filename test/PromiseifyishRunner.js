@@ -392,16 +392,10 @@ export function run(Promiseifyish) {
                             callback('someError');
                         };
 
-                        let outcomeRedirector = error => {
-                            return !error;
-                        }
-
                         describe('Success', () => {
 
                             it('should invoke the success callback with [null, value, value]', () => {
-                                let promiseified = Promiseify(invokeSucess, {
-                                    outcomeRedirector: outcomeRedirector
-                                });
+                                let promiseified = Promiseify.nodeStyle(invokeSucess);
 
                                 return promiseified()
                                     .then(result => {
@@ -419,9 +413,7 @@ export function run(Promiseifyish) {
                         describe('Failure', () => {
 
                             it('should invoke the success callback with [error]', () => {
-                                let promiseified = Promiseify(invokeFailure, {
-                                    outcomeRedirector: outcomeRedirector
-                                });
+                                let promiseified = Promiseify.nodeStyle(invokeFailure);
 
                                 return promiseified()
                                     // 'then' should not be invoked
@@ -439,32 +431,30 @@ export function run(Promiseifyish) {
                     // The Chrome API typically has only one callback, and the error status is
                     // indicated in a global.
                     describe('Chrome API Style', () => {
-
-                        let lastError = null;
+                        // The lastError indicator is on window.chrome.runtime.lastError
+                        window.chrome = {
+                            runtime: {
+                                lastError: null
+                            }
+                        }
 
                         beforeEach(() => {
-                            lastError = null;
+                            chrome.runtime.lastError = null;
                         });
 
-                        let invokeSucess = callback => {
+                        function invokeSucess(callback) {
                             callback('someValue1', 'someValue2');
                         };
 
-                        let invokeFailure = callback => {
-                            lastError = true;
+                        function invokeFailure(callback) {
+                            chrome.runtime.lastError = true;
                             callback();
                         };
-
-                        let outcomeRedirector = () => {
-                            return !lastError;
-                        }
 
                         describe('Success', () => {
 
                             it('should invoke the success callback with [null, value, value]', () => {
-                                let promiseified = Promiseify(invokeSucess, {
-                                    outcomeRedirector: outcomeRedirector
-                                });
+                                let promiseified = Promiseify.chromeRuntimeAPIStyle(invokeSucess);
 
                                 return promiseified()
                                     .then(result => {
@@ -481,9 +471,7 @@ export function run(Promiseifyish) {
                         describe('Failure', () => {
 
                             it('should invoke the success callback with [error]', () => {
-                                let promiseified = Promiseify(invokeFailure, {
-                                    outcomeRedirector: outcomeRedirector
-                                });
+                                let promiseified = Promiseify.chromeRuntimeAPIStyle(invokeFailure);
 
                                 return promiseified()
                                     // 'then' should not be invoked

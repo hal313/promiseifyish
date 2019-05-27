@@ -1,6 +1,6 @@
 {
   "name": "@hal313/promiseifyish",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "Adds promise style notation to Firebase style functions",
   "homepage": "https://github.com/hal313/promiseifyish",
   "main": "dist/Promiseifyish.js",
@@ -30,7 +30,7 @@
     "watch:build": "npm-watch build",
     "watch:dist": "npm-watch dist",
     "watch:develop": "npm-watch develop",
-    "release": "ext/release.sh --skip-push --"
+    "release": "ext/release.sh --skip-push"
   },
   "author": "John R. Ghidiu",
   "license": "MIT",

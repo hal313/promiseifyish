@@ -35,6 +35,8 @@ someFunction1()
 
 *WARNING*: If a success callback is specified as a non-function (such as `null` or `undefined`) *AND* a failure callback is specifed as a function, then the failure function may not correctly be invoked. See [issue 4](https://github.com/hal313/promiseifyish/issues/4) in GitHub.
 
+See an [example](https://hal313.github.io/settings-manager-example/).
+
 ## Usage
 
 Use `Promiseifyish` to promiseify a function or an object. Project environment dictates how the code is imported. ES6, ES5 and AMD/CommonJS are all supported. Comprehensive documentation and examples may be found at the [GitHub pages](https://hal313.github.io/promiseifyish/).
